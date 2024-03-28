@@ -1,12 +1,12 @@
 import mongoose from "mongoose";
 
-const temperatureSchema = new mongoose.Schema(
+const DatasSchema = new mongoose.Schema(
   {
-    sensorId: {
-      type: String,
-      required: true,
+    deviceId: {
+      type:String,
+      required:true,
     },
-    temperature:[
+    temperature: [
       {
         temperature: {
           type: Number,
@@ -16,14 +16,30 @@ const temperatureSchema = new mongoose.Schema(
           type: String,
           required: true,
         },
-      }
+      },
     ],
+    conductivity:{
+      type: Number,
+      required: true,
+    },
+    turbidity:{
+      type: Number,
+      required: true,
+    },
+    ph:{
+      type: Number,
+      required: true,
+    },
+    oxygen:{
+      type: Number,
+      required: true,
+    },
   },
   {
     timestamps: true,
   }
 );
 
-const temperature = mongoose.model("TemperatureData", temperatureSchema);
+const datas = mongoose.model("Datas", DatasSchema);
 
-export default temperature;
+export default datas;

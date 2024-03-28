@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import connectDB from "./connectDB.js";
 import DatasRoutes from "./Routes/DatasRoutes.js";
+import DevicesRoutes from "./Routes/DevicesRoutes.js";
 
 const port = 5000;
 const app = express();
@@ -20,6 +21,7 @@ app.post("/data", (req, res) => {
 });
 // route for the datas
 app.use("/data", DatasRoutes);
+app.use("/devices", DevicesRoutes);
 
 
 // starting the server
