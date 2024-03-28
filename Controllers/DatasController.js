@@ -57,7 +57,10 @@ const getDeviceData = async (req, res) => {
   try {
     const device = await deviceModel
       .findById(req.params.deviceId)
-      .populate("datas");
+      .populate({
+        path: 'datas',
+        select: '-_id -deviceId -__v'
+      })
     if (device) {
       res.status(200).json(device.datas);
     } else {
