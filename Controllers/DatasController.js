@@ -1,6 +1,7 @@
 import datasModel from "../Models/datasModel.js";
 import deviceModel from "../Models/devicesModel.js";
 import mongoose from "mongoose";
+import { addNotification, datacheck } from "../utils/NotificationSystem.js";
 
 // @desc recieving the  data from the device
 // @route POST /data/send
@@ -27,19 +28,22 @@ const receivedData = async (req, res) => {
     const device = await deviceModel.findById(deviceId);
     if (!device) {
       return res.status(404).json({ message: "Device not found" });
-    }
-    // save the data to the database and add its id to the device
-    const savedData = await datasModel.create(Data);
-    if (savedData) {
-      if (!device.datas.includes(savedData._id)) {
-        device.datas.push(savedData._id);
-        await device.save();
-      }
-    }
-    if (savedData) {
-      res.status(200).json({ message: " data saved" });
     } else {
-      res.status(500).json({ message: "Error in saving  data" });
+      // save the data to the database and add its id to the device
+      const savedData = await datasModel.create(Data);
+      if (savedData) {
+        if (!device.datas.includes(savedData._id)) {
+          device.datas.push(savedData._id);
+          await device.save();
+          const message = datacheck(Data);
+          if (message) {
+            await addNotification({ message });
+          }
+          res.status(201).json({ message: "Data saved successfully" });
+        }
+      } else {
+        res.status(500).json({ message: "Error in saving  data" });
+      }
     }
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -53,7 +57,7 @@ const getDeviceData = async (req, res) => {
   try {
     const device = await deviceModel
       .findById(req.params.deviceId)
-      .populate("datas")
+      .populate("datas");
     if (device) {
       res.status(200).json(device.datas);
     } else {
@@ -109,12 +113,12 @@ const deleteDeviceData = async (req, res) => {
       } else {
         res.status(404).json({ message: "No data found" });
       }
-    }else{
+    } else {
       res.status(404).json({ message: "Device not found" });
     }
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
-}
+};
 
 export { receivedData, getLatestData, getDeviceData, deleteDeviceData };
