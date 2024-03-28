@@ -6,7 +6,11 @@ import notificationModel from "../Models/notificationModel.js";
 const getNotifications = async (req, res) => {
   try {
     const notifications = await notificationModel.find();
-    res.status(200).json(notifications);
+    if(notifications.length > 0){
+        res.status(200).json(notifications);
+    }else{
+        res.status(404).json({message: "No notifications found"});
+    }
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -29,3 +33,5 @@ const addNotification = async (req, res) => {
     res.status(409).json({ message: error.message });
   }
 };
+
+export { getNotifications, addNotification };
