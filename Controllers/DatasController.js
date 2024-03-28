@@ -31,7 +31,7 @@ const receivedData = async (req, res) => {
     // save the data to the database and add its id to the device
     const savedData = await datasModel.create(Data);
     if (savedData) {
-      if(!device.datas.includes(savedData._id)){
+      if (!device.datas.includes(savedData._id)) {
         device.datas.push(savedData._id);
         await device.save();
       }
@@ -51,7 +51,9 @@ const receivedData = async (req, res) => {
 // @access Public
 const getDeviceData = async (req, res) => {
   try {
-    const device = await deviceModel.findById(req.params.deviceId).populate("datas");
+    const device = await deviceModel
+      .findById(req.params.deviceId)
+      .populate("datas")
     if (device) {
       res.status(200).json(device.datas);
     } else {
@@ -71,17 +73,48 @@ const getLatestData = async (req, res) => {
     const device = await deviceModel.findById(deviceId);
     if (!device) {
       return res.status(404).json({ message: "Device not found" });
-    }
-
-    const data = await datasModel.findOne({deviceId: deviceId}).sort({ createdAt: -1 });
-    if (data) {
-      res.status(200).json(data);
     } else {
-      res.status(404).json({ message: "No data found" });
+      const limit = 1;
+      const data = await datasModel
+        .find({ deviceId: deviceId })
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .select("-_id -deviceId");
+      if (data.length > 0) {
+        res.status(200).json(data);
+      } else {
+        res.status(404).json({ message: "No data found" });
+      }
     }
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
 
-export { receivedData, getLatestData, getDeviceData};
+// @desc delete all the data of the device
+// @route DELETE /data/:deviceId
+// @access Public
+const deleteDeviceData = async (req, res) => {
+  try {
+    const device = await deviceModel.findById(req.params.deviceId);
+
+    if (device) {
+      const data = await datasModel.deleteMany({
+        deviceId: req.params.deviceId,
+      });
+      device.datas = [];
+      const saved = await device.save();
+      if (data && saved) {
+        res.status(200).json({ message: "Data deleted successfully" });
+      } else {
+        res.status(404).json({ message: "No data found" });
+      }
+    }else{
+      res.status(404).json({ message: "Device not found" });
+    }
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+}
+
+export { receivedData, getLatestData, getDeviceData, deleteDeviceData };

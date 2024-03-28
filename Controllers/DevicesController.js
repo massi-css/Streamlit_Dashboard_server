@@ -33,10 +33,10 @@ const addDevice = async (req, res) => {
 // @access Public
 const getDeviceById = async (req, res) => {
   try {
-    const device = await devicesModel.findOne({_id:req.params.id});
-    if (device){
+    const device = await devicesModel.findOne({ _id: req.params.id });
+    if (device) {
       res.status(200).json(device);
-    }else{
+    } else {
       res.status(404).json({ message: "Device not found" });
     }
   } catch (error) {
@@ -58,4 +58,27 @@ const deleteDevice = async (req, res) => {
   }
 };
 
-export { getDevices, addDevice, getDeviceById, deleteDevice };
+// @desc Update device by id
+// @route PUT /api/devices/:id
+// @access Public
+const updateDevice = async (req, res) => {
+  const device = req.body;
+  try {
+    const updatedDevice = await devicesModel.findByIdAndUpdate(
+      req.params.id,
+      device,
+      { new: true }
+    );
+    if (updatedDevice) {
+      res
+        .status(200)
+        .json({ message: "Device updated successfully", data: updatedDevice });
+    }else{
+      res.status(404).json({ message: "Device not found" });
+    }
+  } catch (error) {
+    res.status(404).json({ message: error.message });
+  }
+};
+
+export { getDevices, addDevice, getDeviceById, deleteDevice,updateDevice };
