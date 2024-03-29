@@ -3,34 +3,26 @@ import mongoose from "mongoose";
 const DatasSchema = new mongoose.Schema(
   {
     deviceId: {
-      type:String,
-      required:true,
+      type: String,
+      required: true,
     },
-    temperature: [
-      {
-        temperature: {
-          type: Number,
-          required: true,
-        },
-        unit: {
-          type: String,
-          required: true,
-        },
-      },
-    ],
-    conductivity:{
+    temperature: {
       type: Number,
       required: true,
     },
-    turbidity:{
+    conductivity: {
       type: Number,
       required: true,
     },
-    ph:{
+    turbidity: {
       type: Number,
       required: true,
     },
-    oxygen:{
+    ph: {
+      type: Number,
+      required: true,
+    },
+    oxygen: {
       type: Number,
       required: true,
     },

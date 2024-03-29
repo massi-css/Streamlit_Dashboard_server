@@ -3,8 +3,8 @@ import notificationModel from "../Models/notificationModel.js";
 // @desc check if the data is out of range
 const datacheck = (data) => {
   if (
-    data.temperature[0].temperature > 40 ||
-    data.temperature[0].temperature < 10
+    data.temperature> 40 ||
+    data.temperature < 10
   ) {
     return "Temperature is out of range";
   } else if (data.conductivity > 50 || data.conductivity < 10) {

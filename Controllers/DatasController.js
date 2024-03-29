@@ -3,6 +3,15 @@ import deviceModel from "../Models/devicesModel.js";
 import mongoose from "mongoose";
 import { addNotification, datacheck } from "../utils/NotificationSystem.js";
 
+
+const simpleDate = (date) => {
+  const dateformat = new Date(date);
+  let hours = dateformat.getUTCHours().toString().padStart(2, '0');
+  let minutes = dateformat.getUTCMinutes().toString().padStart(2, '0');
+  let seconds = dateformat.getUTCSeconds().toString().padStart(2, '0');
+  return `${hours}:${minutes}:${seconds}`;
+}
+
 // @desc recieving the  data from the device
 // @route POST /data/send
 // @access Public
@@ -81,13 +90,17 @@ const getLatestData = async (req, res) => {
     if (!device) {
       return res.status(404).json({ message: "Device not found" });
     } else {
-      const limit = 1;
+      const limit = 10;
       const data = await datasModel
         .find({ deviceId: deviceId })
         .sort({ createdAt: -1 })
         .limit(limit)
-        .select("-_id -deviceId");
+        .select("-_id -deviceId -__v -updatedAt")
+        .lean();
       if (data.length > 0) {
+        data.forEach((doc)=>{
+          doc.createdAt = simpleDate(doc.createdAt)
+        })
         res.status(200).json(data);
       } else {
         res.status(404).json({ message: "No data found" });
