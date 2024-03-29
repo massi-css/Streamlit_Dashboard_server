@@ -4,6 +4,7 @@ import connectDB from "./connectDB.js";
 import DatasRoutes from "./Routes/DatasRoutes.js";
 import DevicesRoutes from "./Routes/DevicesRoutes.js";
 import notificationRoutes from "./Routes/NotificationsRoutes.js";
+import UsersRoutes from "./Routes/UsersRoutes.js";
 
 const port = 5000;
 const app = express();
@@ -24,6 +25,7 @@ app.post("/data", (req, res) => {
 app.use("/data", DatasRoutes);
 app.use("/devices", DevicesRoutes);
 app.use("/notifications", notificationRoutes);
+app.use("/users", UsersRoutes);
 
 
 // starting the server

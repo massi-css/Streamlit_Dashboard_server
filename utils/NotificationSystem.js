@@ -1,20 +1,27 @@
 import notificationModel from "../Models/notificationModel.js";
 
 // @desc check if the data is out of range
-const datacheck = (data) => {
-  if (
-    data.temperature> 40 ||
-    data.temperature < 10
-  ) {
-    return "Temperature is out of range";
-  } else if (data.conductivity > 50 || data.conductivity < 10) {
-    return "Conductivity is out of range";
-  } else if (data.turbidity > 50 || data.turbidity < 10) {
-    return "Turbidity is out of range";
-  } else if (data.ph > 10 || data.ph < 4) {
-    return "PH is out of range";
-  } else if (data.oxygen > 50 || data.oxygen < 10) {
-    return "Oxygen is out of range";
+const datacheck = (data,device) => {
+  if (data.temperature > 30) {
+    return `${device.deviceName}: It's too hot!`;
+  } else if (data.temperature < 10) {
+    return `${device.deviceName}: It's too cold 🥶 !`;
+  } else if (data.conductivity > 500) {
+    return `${device.deviceName}: Conductivity is too high ♨️ !`;
+  } else if (data.conductivity < 50) {
+    return `${device.deviceName}: Conductivity is too low ⚠️!`;
+  } else if (data.turbidity >  25) {
+    return `${device.deviceName}: Turbidity is too high ⚠️!`;
+  } else if (data.turbidity < 0) {
+    return `${device.deviceName}: Turbidity is too low ⚠️ !`;
+  } else if (data.ph > 8.5) {
+    return `${device.deviceName}: PH level is too high ⚠️ !`;
+  } else if (data.ph < 6.5) {
+    return `${device.deviceName}: PH level is too low ⚠️ !`;
+  } else if (data.oxygen > 12) {
+    return `${device.deviceName}: Oxygen level is too high ⚠️ !`;
+  } else if (data.oxygen < 5) {
+    return `${device.deviceName}: Oxygen level is too low ⚠️ !`;
   } else {
     return null;
   }

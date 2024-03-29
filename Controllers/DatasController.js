@@ -26,10 +26,9 @@ const receivedData = async (req, res) => {
     ph,
     oxygen,
   };
-  console.log(Data.temperature);
 
   try {
-    // check if the device exists
+    // check if the device id is valid
     if (!mongoose.Types.ObjectId.isValid(deviceId)) {
       return res.status(400).json({ message: "Invalid device ID" });
     }
@@ -44,9 +43,10 @@ const receivedData = async (req, res) => {
         if (!device.datas.includes(savedData._id)) {
           device.datas.push(savedData._id);
           await device.save();
-          const message = datacheck(Data);
+          const message = datacheck(Data,device.toObject())
           if (message) {
             await addNotification({ message });
+            console.log(message);
           }
           res.status(201).json({ message: "Data saved successfully" });
         }
