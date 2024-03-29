@@ -103,7 +103,14 @@ const getLatestData = async (req, res) => {
         })
         res.status(200).json(data);
       } else {
-        res.status(404).json({ message: "No data found" });
+        res.status(404).json([{
+          temperature: 0,
+          conductivity: 0,
+          turbidity: 0,
+          ph: 0,
+          oxygen: 0,
+          createdAt: simpleDate(new Date())
+        }]);
       }
     }
   } catch (err) {
