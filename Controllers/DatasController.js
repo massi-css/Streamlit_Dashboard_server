@@ -2,15 +2,17 @@ import datasModel from "../Models/datasModel.js";
 import deviceModel from "../Models/devicesModel.js";
 import mongoose from "mongoose";
 import { addNotification, datacheck } from "../utils/NotificationSystem.js";
-
+import { sendEmail } from "../utils/sendEmail.js";
+import UserModel from "../Models/usersModel.js";
+import { sendSMS } from "../utils/send_sms.js";
 
 const simpleDate = (date) => {
   const dateformat = new Date(date);
-  let hours = dateformat.getUTCHours().toString().padStart(2, '0');
-  let minutes = dateformat.getUTCMinutes().toString().padStart(2, '0');
-  let seconds = dateformat.getUTCSeconds().toString().padStart(2, '0');
+  let hours = dateformat.getUTCHours().toString().padStart(2, "0");
+  let minutes = dateformat.getUTCMinutes().toString().padStart(2, "0");
+  let seconds = dateformat.getUTCSeconds().toString().padStart(2, "0");
   return `${hours}:${minutes}:${seconds}`;
-}
+};
 
 // @desc recieving the  data from the device
 // @route POST /data/send
@@ -43,9 +45,16 @@ const receivedData = async (req, res) => {
         if (!device.datas.includes(savedData._id)) {
           device.datas.push(savedData._id);
           await device.save();
-          const message = datacheck(Data,device.toObject())
+          const message = datacheck(Data, device.toObject());
           if (message) {
             await addNotification({ message });
+            const user = await UserModel.findById(process.env.ADMIN_ID)
+            if (user && user.recieveNotification.perEmail) {
+              await sendEmail(user.email, "Alert", message);
+            }
+            if (user && user.phoneNumber && user.recieveNotification.perSMS) {
+              await sendSMS(message, user.phoneNumber);
+            }
             console.log(message);
           }
           res.status(201).json({ message: "Data saved successfully" });
@@ -64,12 +73,10 @@ const receivedData = async (req, res) => {
 // @access Public
 const getDeviceData = async (req, res) => {
   try {
-    const device = await deviceModel
-      .findById(req.params.deviceId)
-      .populate({
-        path: 'datas',
-        select: '-_id -deviceId -__v'
-      })
+    const device = await deviceModel.findById(req.params.deviceId).populate({
+      path: "datas",
+      select: "-_id -deviceId -__v",
+    });
     if (device) {
       res.status(200).json(device.datas);
     } else {
@@ -98,19 +105,21 @@ const getLatestData = async (req, res) => {
         .select("-_id -deviceId -__v -updatedAt")
         .lean();
       if (data.length > 0) {
-        data.forEach((doc)=>{
-          doc.createdAt = simpleDate(doc.createdAt)
-        })
+        data.forEach((doc) => {
+          doc.createdAt = simpleDate(doc.createdAt);
+        });
         res.status(200).json(data);
       } else {
-        res.status(404).json([{
-          temperature: 0,
-          conductivity: 0,
-          turbidity: 0,
-          ph: 0,
-          oxygen: 0,
-          createdAt: simpleDate(new Date())
-        }]);
+        res.status(404).json([
+          {
+            temperature: 0,
+            conductivity: 0,
+            turbidity: 0,
+            ph: 0,
+            oxygen: 0,
+            createdAt: simpleDate(new Date()),
+          },
+        ]);
       }
     }
   } catch (err) {
