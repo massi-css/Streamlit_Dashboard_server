@@ -17,15 +17,24 @@ const addUser = async (req, res) => {
 // @access Public
 const updateUser = async (req, res) => {
   const { id } = req.params;
-  const user = req.body;
+  const {username,password,oldPassword} = req.body;
   try {
-    const updatedUser = await usersModel.findByIdAndUpdate(id, user, {
-      new: true,
-    });
-    if (updateUser) {
-      res.status(200).json(updatedUser);
+    const user = await usersModel.findById(id);
+    if (!user) {
+      res.status(404).json({status:false ,message: "User not found" });
     } else {
-      res.status(404).json({ message: "User not found" });
+      if (user.password === oldPassword) {
+        const updatedUser = await usersModel.findByIdAndUpdate(id, {username,password}, {
+          new: true,
+        });
+        if (updatedUser) {
+          res.status(200).json({status:true, message: "User updated successfully"});
+        } else {
+          res.status(404).json({status:false, message: "Error while updating" });
+        }
+      } else {
+        res.status(404).json({status:false, message: "Password is incorrect" });
+      }
     }
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -35,18 +44,18 @@ const updateUser = async (req, res) => {
 // @desc get user by id
 // @route GET /api/users/:id
 // @access Public
-const getUserById = async(req,res) =>{
-    const {id} = req.params;
-    try {
-        const user = await usersModel.findById(id);
-        if(user){
-        res.status(200).json(user);
-        }else{
-        res.status(404).json({message: 'User not found'});
-        }
-    } catch (error) {
-        res.status(400).json({message: error.message});
+const getUserById = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const user = await usersModel.findById(id);
+    if (user) {
+      res.status(200).json(user);
+    } else {
+      res.status(404).json({ message: "User not found" });
     }
-}
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
 
-export { addUser, updateUser, getUserById};
+export { addUser, updateUser, getUserById };
