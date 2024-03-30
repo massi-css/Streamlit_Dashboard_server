@@ -13,9 +13,25 @@ const Schema = new mongoose.Schema({
         type: String,
         required: true
     },
-    name: {
+    phoneNumber:{
         type: String,
+    },
+    updatefrequency:{
+        type: Number,
+        default:10,
         required: true
+    },
+    recieveNotification:{
+        perEmail:{
+            type: Boolean,
+            default: true,
+            required: true
+        },
+        perSMS:{
+            type: Boolean,
+            default: true,
+            required: true
+        },
     }
 })
 

@@ -17,23 +17,29 @@ const addUser = async (req, res) => {
 // @access Public
 const updateUser = async (req, res) => {
   const { id } = req.params;
-  const {username,password,oldPassword} = req.body;
+  const data = req.body;
   try {
     const user = await usersModel.findById(id);
     if (!user) {
-      res.status(404).json({status:false ,message: "User not found" });
+      res.status(404).json({ status: false, message: "User not found" });
     } else {
-      if (user.password === oldPassword) {
-        const updatedUser = await usersModel.findByIdAndUpdate(id, {username,password}, {
+      if (user.password === data.oldPassword) {
+        const updatedUser = await usersModel.findByIdAndUpdate(id, data, {
           new: true,
         });
         if (updatedUser) {
-          res.status(200).json({status:true, message: "User updated successfully"});
+          res
+            .status(200)
+            .json({ status: true, message: "User updated successfully" });
         } else {
-          res.status(404).json({status:false, message: "Error while updating" });
+          res
+            .status(404)
+            .json({ status: false, message: "Error while updating" });
         }
       } else {
-        res.status(404).json({status:false, message: "Password is incorrect" });
+        res
+          .status(404)
+          .json({ status: false, message: "Password is incorrect" });
       }
     }
   } catch (error) {
@@ -47,7 +53,7 @@ const updateUser = async (req, res) => {
 const getUserById = async (req, res) => {
   const { id } = req.params;
   try {
-    const user = await usersModel.findById(id);
+    const user = await usersModel.findById(id).select("-password");
     if (user) {
       res.status(200).json(user);
     } else {
@@ -58,4 +64,33 @@ const getUserById = async (req, res) => {
   }
 };
 
-export { addUser, updateUser, getUserById };
+// @desc update notification infos
+// @route PUT /api/users/:id/notifications
+// @access Public
+const updateNotification = async (req, res) => {
+  const { id } = req.params;
+  const data = req.body;
+  try {
+    const user = await usersModel.findById(id);
+    if (!user) {
+      res.status(404).json({ status: false, message: "User not found" });
+    } else {
+      const updatedUser = await usersModel.findByIdAndUpdate(id, data, {
+        new: true,
+      });
+      if (updatedUser) {
+        res
+          .status(200)
+          .json({ status: true, message: "Settings updated successfully" });
+      } else {
+        res
+          .status(404)
+          .json({ status: false, message: "Error while updating" });
+      }
+    }
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+export { addUser, updateUser, getUserById, updateNotification};
