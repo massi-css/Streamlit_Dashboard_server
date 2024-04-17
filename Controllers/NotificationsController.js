@@ -5,11 +5,13 @@ import notificationModel from "../Models/notificationModel.js";
 // @access Public
 const getNotifications = async (req, res) => {
   try {
-    const notifications = await notificationModel.find();
-    if(notifications.length > 0){
-        res.status(200).json(notifications);
-    }else{
-        res.status(404).json({message: "No notifications found"});
+    const notifications = await notificationModel
+      .find()
+      .sort({ createdAt: -1 });
+    if (notifications.length > 0) {
+      res.status(200).json(notifications);
+    } else {
+      res.status(404).json({ message: "No notifications found" });
     }
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -23,11 +25,10 @@ const addNotification = async (req, res) => {
   const notification = req.body;
   try {
     const newNotification = await notificationModel.create(notification);
-    if(newNotification){
-        res.status(201).json(newNotification);
-    }
-    else{
-        res.status(400).json({message: "Invalid notification data"});
+    if (newNotification) {
+      res.status(201).json(newNotification);
+    } else {
+      res.status(400).json({ message: "Invalid notification data" });
     }
   } catch (error) {
     res.status(409).json({ message: error.message });
