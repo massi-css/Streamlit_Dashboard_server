@@ -4,10 +4,10 @@ import mongoose from "mongoose";
 import { addNotification, datacheck } from "../utils/NotificationSystem.js";
 import { sendEmail } from "../utils/sendEmail.js";
 import UserModel from "../Models/usersModel.js";
+import datasModel from "../Models/datasModel.js";
 import { sendSMS } from "../utils/send_sms.js";
 import axios from "axios";
 import dotenv from "dotenv";
-import { response } from "express";
 
 const simpleDate = (date) => {
   const dateformat = new Date(date);
@@ -109,7 +109,7 @@ const getLatestData = async (req, res) => {
       return res.status(404).json({ message: "Device not found" });
     } else {
       const limit = 10;
-      const data = await forcastsModel
+      const data = await datasModel
         .find({ deviceId: deviceId })
         .sort({ createdAt: -1 })
         .limit(limit)
@@ -201,7 +201,7 @@ const getLatestForcastData = async (req, res) => {
 };
 
 // @desc forcast next day data
-// @route POST /data/forcast/:deviceId
+// @route POST /forcast/:deviceId
 // @access Public
 const forcastData = async (req, res) => {
   dotenv.config();
@@ -220,7 +220,7 @@ const forcastData = async (req, res) => {
       return res.status(404).json({ message: "Device not found" });
     } else {
       try {
-        response = await axios.post(`http://127.0.0.1:8080/predict`, {
+        response = await axios.post(`${process.env.FORECASTING_API}/predict`, {
           pH,
           temperature,
           turbidity,
@@ -250,7 +250,7 @@ const forcastData = async (req, res) => {
 };
 
 // @desc get the latest temperature data
-// @route GET /data/temperature/latest
+// @route GET /forcast/:deviceId/all
 // @access Public
 const getForcastedData = async (req, res) => {
   const deviceId = req.params.deviceId;

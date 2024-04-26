@@ -6,6 +6,8 @@ import DevicesRoutes from "./Routes/DevicesRoutes.js";
 import notificationRoutes from "./Routes/NotificationsRoutes.js";
 import UsersRoutes from "./Routes/UsersRoutes.js";
 import ForcastsRoutes from "./Routes/ForcastsRoutes.js";
+import { trainModel } from "./utils/trainingModelSystem.js";
+import schedule from "node-schedule";
 
 const port = 5000;
 const app = express();
@@ -13,6 +15,9 @@ app.use(express.json());
 dotenv.config();
 // connecting to db
 connectDB();
+
+// check the model if its trained or not every day at 23:00 PM
+const job = schedule.scheduleJob({ hour: 23, minute: 0 }, trainModel);
 
 // main route for the server
 app.get("/", (req, res) => {
@@ -27,8 +32,7 @@ app.use("/data", DatasRoutes);
 app.use("/devices", DevicesRoutes);
 app.use("/notifications", notificationRoutes);
 app.use("/users", UsersRoutes);
-app.use("/forcast",ForcastsRoutes);
-
+app.use("/forcast", ForcastsRoutes);
 
 // starting the server
 app.listen(port, () => {
