@@ -5,6 +5,7 @@ import DatasRoutes from "./Routes/DatasRoutes.js";
 import DevicesRoutes from "./Routes/DevicesRoutes.js";
 import notificationRoutes from "./Routes/NotificationsRoutes.js";
 import UsersRoutes from "./Routes/UsersRoutes.js";
+import ForcastsRoutes from "./Routes/ForcastsRoutes.js";
 
 const port = 5000;
 const app = express();
@@ -26,6 +27,7 @@ app.use("/data", DatasRoutes);
 app.use("/devices", DevicesRoutes);
 app.use("/notifications", notificationRoutes);
 app.use("/users", UsersRoutes);
+app.use("/forcast",ForcastsRoutes);
 
 
 // starting the server

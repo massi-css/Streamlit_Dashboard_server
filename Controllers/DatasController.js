@@ -1,10 +1,13 @@
-import datasModel from "../Models/datasModel.js";
+import forcastsModel from "../Models/forcastsModel.js";
 import deviceModel from "../Models/devicesModel.js";
 import mongoose from "mongoose";
 import { addNotification, datacheck } from "../utils/NotificationSystem.js";
 import { sendEmail } from "../utils/sendEmail.js";
 import UserModel from "../Models/usersModel.js";
 import { sendSMS } from "../utils/send_sms.js";
+import axios from "axios";
+import dotenv from "dotenv";
+import { response } from "express";
 
 const simpleDate = (date) => {
   const dateformat = new Date(date);
@@ -12,6 +15,14 @@ const simpleDate = (date) => {
   let minutes = dateformat.getUTCMinutes().toString().padStart(2, "0");
   let seconds = dateformat.getUTCSeconds().toString().padStart(2, "0");
   return `${hours}:${minutes}:${seconds}`;
+};
+
+const simpleForcastDate = (date) => {
+  const dateformat = new Date(date);
+  let day = dateformat.getUTCDate().toString().padStart(2, "0");
+  let month = (dateformat.getUTCMonth() + 1).toString().padStart(2, "0");
+  let year = dateformat.getUTCFullYear().toString();
+  return `${day}-${month}-${year}`;
 };
 
 // @desc recieving the  data from the device
@@ -40,7 +51,7 @@ const receivedData = async (req, res) => {
       return res.status(404).json({ message: "Device not found" });
     } else {
       // save the data to the database and add its id to the device
-      const savedData = await datasModel.create(Data);
+      const savedData = await forcastsModel.create(Data);
       if (savedData) {
         if (!device.datas.includes(savedData._id)) {
           device.datas.push(savedData._id);
@@ -48,7 +59,7 @@ const receivedData = async (req, res) => {
           const message = datacheck(Data, device.toObject());
           if (message) {
             await addNotification({ message });
-            const user = await UserModel.findById(process.env.ADMIN_ID)
+            const user = await UserModel.findById(process.env.ADMIN_ID);
             if (user && user.recieveNotification.perEmail) {
               await sendEmail(user.email, "Alert", message);
             }
@@ -98,7 +109,7 @@ const getLatestData = async (req, res) => {
       return res.status(404).json({ message: "Device not found" });
     } else {
       const limit = 10;
-      const data = await datasModel
+      const data = await forcastsModel
         .find({ deviceId: deviceId })
         .sort({ createdAt: -1 })
         .limit(limit)
@@ -135,12 +146,16 @@ const deleteDeviceData = async (req, res) => {
     const device = await deviceModel.findById(req.params.deviceId);
 
     if (device) {
-      const data = await datasModel.deleteMany({
+      const data = await forcastsModel.deleteMany({
         deviceId: req.params.deviceId,
       });
+      const forcastData = await forcastsModel.deleteMany({
+        deviceId: req.params.deviceId,
+      });
+      device.forcasts = [];
       device.datas = [];
       const saved = await device.save();
-      if (data && saved) {
+      if (data && forcastData && saved) {
         res.status(200).json({ message: "Data deleted successfully" });
       } else {
         res.status(404).json({ message: "No data found" });
@@ -153,4 +168,131 @@ const deleteDeviceData = async (req, res) => {
   }
 };
 
-export { receivedData, getLatestData, getDeviceData, deleteDeviceData };
+// @desc get latest forcast data
+// @route GET /forcast/:deviceId
+// @access Public
+const getLatestForcastData = async (req, res) => {
+  try {
+    const device = await deviceModel.findById(req.params.deviceId);
+    if (!device) {
+      return res.status(404).json({ message: "Device not found" });
+    } else {
+      const forcastdata = await forcastsModel
+        .find({ deviceId: req.params.deviceId })
+        .sort({ createdAt: -1 })
+        .limit(1)
+        .select("-_id -deviceId -__v -updatedAt");
+      if (forcastdata.length > 0) {
+        res.status(200).json(forcastdata);
+      } else {
+        res.status(404).json([
+          {
+            next_day_temp: 0,
+            next_day_turb: 0,
+            next_day_pH: 0,
+            createdAt: simpleForcastDate(new Date()),
+          },
+        ]);
+      }
+    }
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// @desc forcast next day data
+// @route POST /data/forcast/:deviceId
+// @access Public
+const forcastData = async (req, res) => {
+  dotenv.config();
+  const { temperature, turbidity, pH } = req.body;
+  const deviceId = req.params.deviceId;
+  let response;
+
+  try {
+    // check if the device id is valid
+    if (!mongoose.Types.ObjectId.isValid(deviceId)) {
+      return res.status(400).json({ message: "Invalid device ID" });
+    }
+    // check if the device exists
+    const device = await deviceModel.findById(deviceId);
+    if (!device) {
+      return res.status(404).json({ message: "Device not found" });
+    } else {
+      try {
+        response = await axios.post(`http://127.0.0.1:8080/predict`, {
+          pH,
+          temperature,
+          turbidity,
+        });
+        console.log(response.data);
+      } catch (err) {
+        console.log(err.message);
+        return res.status(500).json({ forcastModelmessage: err.message });
+      }
+      // save the forcasted data to the database and add its id to the device
+      let savedData;
+      if (response.data) {
+        savedData = await forcastsModel.create({
+          ...response.data,
+          deviceId,
+        });
+      }
+      if (savedData) {
+        res.status(201).json({ message: "Data saved successfully" });
+      } else {
+        res.status(500).json({ message: "Error in saving  data" });
+      }
+    }
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// @desc get the latest temperature data
+// @route GET /data/temperature/latest
+// @access Public
+const getForcastedData = async (req, res) => {
+  const deviceId = req.params.deviceId;
+  try {
+    const device = await deviceModel.findById(deviceId);
+    if (!device) {
+      return res.status(404).json({ message: "Device not found" });
+    } else {
+      const limit = 10;
+      const forcastdata = await forcastsModel
+        .find({ deviceId: deviceId })
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .select("-_id -deviceId -__v -updatedAt")
+        .lean();
+      if (forcastdata.length > 0) {
+        forcastdata.forEach((doc) => {
+          doc.createdAt = simpleForcastDate(doc.createdAt);
+        });
+        res.status(200).json(forcastdata);
+      } else {
+        res.status(404).json([
+          {
+            next_day_temp: 0,
+            next_day_turb: 0,
+            next_day_pH: 0,
+            createdAt: simpleForcastDate(new Date()),
+          },
+        ]);
+      }
+    }
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+export {
+  receivedData,
+  getLatestData,
+  getDeviceData,
+  deleteDeviceData,
+  forcastData,
+  getLatestForcastData,
+  getForcastedData,
+};

@@ -1,33 +1,27 @@
 import mongoose from "mongoose";
 
-const DatasSchema = new mongoose.Schema(
+const ForcastsSchema = new mongoose.Schema(
   {
     deviceId: {
       type: String,
       required: true,
     },
-    temperature: {
+    next_day_temp: {
       type: Number,
       required: true,
     },
-    conductivity: {
+    next_day_turb: {
       type: Number,
       required: true,
     },
-    turbidity: {
-      type: Number,
-      required: true,
-    },
-    ph: {
+    next_day_pH: {
       type: Number,
       required: true,
     },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
-const datas = mongoose.model("Datas", DatasSchema);
+const forcasts = mongoose.model("Forcasts", ForcastsSchema);
 
-export default datas;
+export default forcasts;

@@ -14,6 +14,10 @@ const DevicesSchema = new mongoose.Schema(
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Datas'
       }],
+      forcasts: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Forcasts'
+      }],
       status: {
       type: String,
       required: true,
