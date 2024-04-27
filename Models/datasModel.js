@@ -22,6 +22,10 @@ const DatasSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    qualityIndex: {
+      type: Number,
+      required: true,
+    },
   },
   {
     timestamps: true,

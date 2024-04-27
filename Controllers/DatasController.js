@@ -8,6 +8,7 @@ import datasModel from "../Models/datasModel.js";
 import { sendSMS } from "../utils/send_sms.js";
 import axios from "axios";
 import dotenv from "dotenv";
+import { calculate_wqi } from "../utils/waterQuality.js";
 
 const simpleDate = (date) => {
   const dateformat = new Date(date);
@@ -29,16 +30,7 @@ const simpleForcastDate = (date) => {
 // @route POST /data/send
 // @access Public
 const receivedData = async (req, res) => {
-  const { deviceId, temperature, conductivity, turbidity, ph, oxygen } =
-    req.body;
-  const Data = {
-    deviceId,
-    temperature,
-    conductivity,
-    turbidity,
-    ph,
-    oxygen,
-  };
+  const { deviceId, temperature, conductivity, turbidity, ph } = req.body;
 
   try {
     // check if the device id is valid
@@ -51,7 +43,21 @@ const receivedData = async (req, res) => {
       return res.status(404).json({ message: "Device not found" });
     } else {
       // save the data to the database and add its id to the device
-      const savedData = await forcastsModel.create(Data);
+      const waterQuality = calculate_wqi(
+        ph,
+        turbidity,
+        conductivity,
+        temperature
+      );
+      const Data = {
+        deviceId,
+        temperature,
+        conductivity,
+        turbidity,
+        ph,
+        qualityIndex: waterQuality,
+      };
+      const savedData = await datasModel.create(Data);
       if (savedData) {
         if (!device.datas.includes(savedData._id)) {
           device.datas.push(savedData._id);
@@ -127,7 +133,7 @@ const getLatestData = async (req, res) => {
             conductivity: 0,
             turbidity: 0,
             ph: 0,
-            oxygen: 0,
+            qualityIndex:0,
             createdAt: simpleDate(new Date()),
           },
         ]);
@@ -146,7 +152,7 @@ const deleteDeviceData = async (req, res) => {
     const device = await deviceModel.findById(req.params.deviceId);
 
     if (device) {
-      const data = await forcastsModel.deleteMany({
+      const data = await datasModel.deleteMany({
         deviceId: req.params.deviceId,
       });
       const forcastData = await forcastsModel.deleteMany({

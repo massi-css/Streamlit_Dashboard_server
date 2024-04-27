@@ -1,7 +1,7 @@
 import notificationModel from "../Models/notificationModel.js";
 
 // @desc check if the data is out of range
-const datacheck = (data,device) => {
+const datacheck = (data, device) => {
   if (data.temperature > 30) {
     return `${device.deviceName}: It's too hot!`;
   } else if (data.temperature < 10) {
@@ -10,7 +10,7 @@ const datacheck = (data,device) => {
     return `${device.deviceName}: Conductivity is too high ♨️ !`;
   } else if (data.conductivity < 50) {
     return `${device.deviceName}: Conductivity is too low ⚠️!`;
-  } else if (data.turbidity >  25) {
+  } else if (data.turbidity > 25) {
     return `${device.deviceName}: Turbidity is too high ⚠️!`;
   } else if (data.turbidity < 0) {
     return `${device.deviceName}: Turbidity is too low ⚠️ !`;
@@ -18,8 +18,6 @@ const datacheck = (data,device) => {
     return `${device.deviceName}: PH level is too high ⚠️ !`;
   } else if (data.ph < 6.5) {
     return `${device.deviceName}: PH level is too low ⚠️ !`;
-  } else if (data.oxygen > 12) {
-    return `${device.deviceName}: Oxygen level is too high ⚠️ !`;
   } else if (data.oxygen < 5) {
     return `${device.deviceName}: Oxygen level is too low ⚠️ !`;
   } else {
