@@ -10,15 +10,19 @@ const DevicesSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    datas: [{
+    datas: [
+      {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Datas'
-      }],
-      forcasts: [{
+        ref: "Datas",
+      },
+    ],
+    forcasts: [
+      {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Forcasts'
-      }],
-      status: {
+        ref: "Forcasts",
+      },
+    ],
+    status: {
       type: String,
       required: true,
     },

@@ -5,7 +5,7 @@ import devicesModel from "../Models/devicesModel.js";
 // @access Public
 const getDevices = async (req, res) => {
   try {
-    const devices = await devicesModel.find();
+    const devices = await devicesModel.find().select("-__v");
     res.status(200).json(devices);
   } catch (error) {
     res.status(500).json({ message: error.message });
