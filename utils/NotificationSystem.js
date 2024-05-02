@@ -2,27 +2,35 @@ import notificationModel from "../Models/notificationModel.js";
 
 // @desc check if the data is out of range
 const datacheck = (data, device) => {
+  let message = `${device.deviceName} : \n`
   if (data.temperature > 30) {
-    return `${device.deviceName}: It's too hot!`;
-  } else if (data.temperature < 10) {
-    return `${device.deviceName}: It's too cold 🥶 !`;
-  } else if (data.conductivity > 500) {
-    return `${device.deviceName}: Conductivity is too high ♨️ !`;
-  } else if (data.conductivity < 50) {
-    return `${device.deviceName}: Conductivity is too low ⚠️!`;
-  } else if (data.turbidity > 25) {
-    return `${device.deviceName}: Turbidity is too high ⚠️!`;
-  } else if (data.turbidity < 0) {
-    return `${device.deviceName}: Turbidity is too low ⚠️ !`;
-  } else if (data.ph > 8.5) {
-    return `${device.deviceName}: PH level is too high ⚠️ !`;
-  } else if (data.ph < 6.5) {
-    return `${device.deviceName}: PH level is too low ⚠️ !`;
-  } else if (data.oxygen < 5) {
-    return `${device.deviceName}: Oxygen level is too low ⚠️ !`;
-  } else {
-    return null;
+    message += "- It's too hot ! \n";
   }
+  if (data.temperature < 10) {
+    message += "- It's too cold 🥶! \n";
+  }
+  if (data.conductivity > 500) {
+    message += "- Conductivity is too high ! \n";
+  }
+  if (data.conductivity < 50) {
+    message += "- Conductivity is too low ⚠️! \n";
+  }
+  if (data.turbidity > 25) {
+    message += " - Turbidity is too high ⚠️! \n";
+  }
+  if (data.turbidity < 0) {
+    message += "- Turbidity is too low ⚠️! \n";
+  }
+  if (data.ph > 8.5) {
+    message += "- PH level is too high ⚠️! \n";
+  }
+  if (data.ph < 6.5) {
+    message += "- PH level is too low ⚠️! \n";
+  }
+  if(message ===`${device.deviceName}`){
+    return null
+  }
+  return message;
 };
 
 //add notification to the database
