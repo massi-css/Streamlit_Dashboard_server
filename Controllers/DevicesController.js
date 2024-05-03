@@ -1,5 +1,5 @@
 import devicesModel from "../Models/devicesModel.js";
-
+import axios from "axios";
 // @desc   Get all devices
 // @route  GET /api/devices
 // @access Public
@@ -20,9 +20,24 @@ const addDevice = async (req, res) => {
 
   try {
     const createdDevice = await devicesModel.create(device);
-    res
-      .status(201)
-      .json({ message: "Device added successfully", data: createdDevice });
+    let connected;
+    if (createdDevice) {
+      try{
+        connected = await axios.post("http://192.168.100.96:80/connectdevice", {
+          deviceId: createdDevice._id,
+        });
+      }catch (e) {
+        console.log(e)
+        devicesModel.findByIdAndDelete(createdDevice._id);
+        res.status(409).json({ message: "Device not connected,try to use the same Wifi" });
+      }
+      if (connected){
+        res.status(201).json({ message: "Device connected successfully", data: createdDevice });
+      }
+    }
+    // res
+    //   .status(201)
+    //   .json({ message: "Device added successfully", data: createdDevice });
   } catch (error) {
     res.status(409).json({ message: error.message });
   }
@@ -73,7 +88,7 @@ const updateDevice = async (req, res) => {
       res
         .status(200)
         .json({ message: "Device updated successfully", data: updatedDevice });
-    }else{
+    } else {
       res.status(404).json({ message: "Device not found" });
     }
   } catch (error) {
@@ -81,4 +96,4 @@ const updateDevice = async (req, res) => {
   }
 };
 
-export { getDevices, addDevice, getDeviceById, deleteDevice,updateDevice };
+export { getDevices, addDevice, getDeviceById, deleteDevice, updateDevice };
