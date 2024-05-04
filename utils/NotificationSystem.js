@@ -28,7 +28,7 @@ const datacheck = (data, device) => {
   if (data.ph < 6.5) {
     message += "- PH level is too low ⚠️! \n";
   }
-  if (message === `${device.deviceName}`) {
+  if (message === `${device.deviceName} : \n`) {
     return null;
   }
   return message;
