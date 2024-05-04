@@ -64,7 +64,11 @@ const getDeviceById = async (req, res) => {
 // @access Public
 const deleteDevice = async (req, res) => {
   try {
-    const device = await devicesModel.findByIdAndDelete(req.params.id);
+    const device = await devicesModel.findById(req.params.id);
+    if (!device) {
+      return res.status(404).json({ message: "Device not found" });
+    }
+    await devicesModel.deleteOne({ _id: req.params.id});
     res
       .status(200)
       .json({ message: "Device deleted successfully", data: device });

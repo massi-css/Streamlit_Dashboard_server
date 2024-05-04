@@ -40,7 +40,7 @@ const receivedData = async (req, res) => {
     // check if the device exists
     const device = await deviceModel.findById(deviceId);
     if (!device) {
-      return res.status(404).json({ message: "Device not found" });
+      return res.status(404).json({ message: "Device not found", deviceId });
     } else {
       // save the data to the database and add its id to the device
       const waterQuality = calculate_wqi(
@@ -64,7 +64,7 @@ const receivedData = async (req, res) => {
           await device.save();
           const message = datacheck(Data, device.toObject());
           if (message) {
-            await addNotification({ message });
+            await addNotification({ message, deviceId: device._id });
             const user = await UserModel.findById(process.env.ADMIN_ID);
             if (user && user.recieveNotification.perEmail) {
               await sendEmail(user.email, "Alert", message);
@@ -133,7 +133,7 @@ const getLatestData = async (req, res) => {
             conductivity: 0,
             turbidity: 0,
             ph: 0,
-            qualityIndex:0,
+            qualityIndex: 0,
             createdAt: simpleDate(new Date()),
           },
         ]);
@@ -245,9 +245,13 @@ const forcastData = async (req, res) => {
         });
       }
       if (savedData) {
-        res.status(201).json({ message: "Data saved successfully" });
-      } else {
-        res.status(500).json({ message: "Error in saving  data" });
+        if (!device.forcasts.includes(savedData._id)) {
+          device.forcasts.push(savedData._id);
+          await device.save();
+          res.status(201).json({ message: "Data saved successfully" });
+        } else {
+          res.status(500).json({ message: "Error in saving  data" });
+        }
       }
     }
   } catch (err) {

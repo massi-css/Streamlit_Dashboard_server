@@ -22,6 +22,12 @@ const DevicesSchema = new mongoose.Schema(
         ref: "Forcasts",
       },
     ],
+    notifications: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Notification",
+      },
+    ],
     status: {
       type: String,
       required: true,
@@ -37,6 +43,23 @@ const DevicesSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+DevicesSchema.pre("deleteOne", { document: true, query: false }, async function (next) {
+  await this.model("Notification").deleteMany({
+    _id: { $in: this.notifications },
+  });
+  next();
+});
+
+DevicesSchema.pre("deleteOne", { document: true, query: false }, async function (next) {
+  await this.model("Datas").deleteMany({ _id: { $in: this.datas } });
+  next();
+});
+
+DevicesSchema.pre("deleteOne", { document: true, query: false }, async function (next) {
+  await this.model("Forcasts").deleteMany({ _id: { $in: this.forcasts } });
+  next();
+});
 
 const devices = mongoose.model("Devices", DevicesSchema);
 export default devices;

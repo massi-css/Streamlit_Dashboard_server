@@ -1,8 +1,9 @@
 import notificationModel from "../Models/notificationModel.js";
+import devicesModel from "../Models/devicesModel.js";
 
 // @desc check if the data is out of range
 const datacheck = (data, device) => {
-  let message = `${device.deviceName} : \n`
+  let message = `${device.deviceName} : \n`;
   if (data.temperature > 30) {
     message += "- It's too hot ! \n";
   }
@@ -27,17 +28,25 @@ const datacheck = (data, device) => {
   if (data.ph < 6.5) {
     message += "- PH level is too low ⚠️! \n";
   }
-  if(message ===`${device.deviceName}`){
-    return null
+  if (message === `${device.deviceName}`) {
+    return null;
   }
   return message;
 };
 
 //add notification to the database
 const addNotification = async (notification) => {
+  const { deviceId } = notification;
   try {
     const newNotification = await notificationModel.create(notification);
     if (newNotification) {
+      const device = await devicesModel.findById(deviceId);
+      if(!device){
+        console.log("notification system : Device not found");
+      }else{
+        device.notifications.push(newNotification._id);
+        await device.save();
+      }
       return {
         message: "Notification added successfully",
         notification: newNotification,
