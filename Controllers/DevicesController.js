@@ -68,10 +68,13 @@ const deleteDevice = async (req, res) => {
     if (!device) {
       return res.status(404).json({ message: "Device not found" });
     }
-    await devicesModel.deleteOne({ _id: req.params.id});
-    res
-      .status(200)
-      .json({ message: "Device deleted successfully", data: device });
+    // await devicesModel.deleteOne({ _id: req.params.id});
+    const deleted  = await device.deleteOne();
+    if(deleted){
+      res
+        .status(200)
+        .json({ message: "Device deleted successfully", data: device });
+    }
   } catch (error) {
     res.status(404).json({ message: error.message });
   }
