@@ -31,6 +31,7 @@ const DevicesSchema = new mongoose.Schema(
     status: {
       type: String,
       required: true,
+      default: "Active",
     },
     longitude: {
       type: Number,

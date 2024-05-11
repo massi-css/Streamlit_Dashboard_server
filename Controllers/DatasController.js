@@ -46,7 +46,6 @@ const receivedData = async (req, res) => {
       const waterQuality = calculate_wqi(
         ph,
         turbidity,
-        conductivity,
         temperature
       );
       const Data = {
@@ -66,6 +65,7 @@ const receivedData = async (req, res) => {
           if (message) {
             await addNotification({ message, deviceId: device._id });
             const user = await UserModel.findById(process.env.ADMIN_ID);
+            // check if the user wants to recieve notification via email or sms
             if (user && user.recieveNotification.perEmail) {
               await sendEmail(user.email, "Alert", message);
             }
@@ -74,6 +74,9 @@ const receivedData = async (req, res) => {
             }
             console.log(message);
           }
+          // update the device status to active
+          device.status = "Active";
+          await device.save();
           res.status(201).json({ message: "Data saved successfully" });
         }
       } else {
@@ -114,7 +117,7 @@ const getLatestData = async (req, res) => {
     if (!device) {
       return res.status(404).json({ message: "Device not found" });
     } else {
-      const limit = 10;
+      const limit = 20;
       const data = await datasModel
         .find({ deviceId: deviceId })
         .sort({ createdAt: -1 })
