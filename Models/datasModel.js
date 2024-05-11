@@ -10,10 +10,6 @@ const DatasSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    conductivity: {
-      type: Number,
-      required: true,
-    },
     turbidity: {
       type: Number,
       required: true,

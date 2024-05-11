@@ -104,8 +104,8 @@ const getDeviceData = async (req, res) => {
   }
 };
 
-// @desc get the latest temperature data
-// @route GET /data/temperature/latest
+// @desc get the latest data
+// @route GET /data/latest
 // @access Public
 const getLatestData = async (req, res) => {
   const deviceId = req.params.deviceId;
@@ -130,7 +130,6 @@ const getLatestData = async (req, res) => {
         res.status(404).json([
           {
             temperature: 0,
-            conductivity: 0,
             turbidity: 0,
             ph: 0,
             qualityIndex: 0,
