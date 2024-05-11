@@ -1,4 +1,3 @@
-import schedule from "node-schedule";
 import devicesModel from "../Models/devicesModel.js";
 
 const checkDeviceStatus = async () => {
