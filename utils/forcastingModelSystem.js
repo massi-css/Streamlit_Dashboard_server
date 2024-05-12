@@ -31,7 +31,13 @@ const forcastData = async () => {
             ...response.data,
           });
           // console.log(forcastdata);
-          await forcastdata.save();
+          let datasaved = await forcastdata.save();
+          if (datasaved) {
+            if (!device.forcasts.includes(datasaved._id)) {
+              device.forcasts.push(datasaved._id);
+              await device.save();
+            }
+          }
         }
       }
     });
