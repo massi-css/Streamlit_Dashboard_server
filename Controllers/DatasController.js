@@ -30,7 +30,7 @@ const simpleForcastDate = (date) => {
 // @route POST /data/send
 // @access Public
 const receivedData = async (req, res) => {
-  const { deviceId, temperature, conductivity, turbidity, ph } = req.body;
+  const { deviceId, temperature, turbidity, ph } = req.body;
 
   try {
     // check if the device id is valid
@@ -51,7 +51,6 @@ const receivedData = async (req, res) => {
       const Data = {
         deviceId,
         temperature,
-        conductivity,
         turbidity,
         ph,
         qualityIndex: waterQuality,

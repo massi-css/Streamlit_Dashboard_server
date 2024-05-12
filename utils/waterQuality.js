@@ -1,19 +1,11 @@
 
 
 
-
-const calculate_wqi = (ph, turbidity, conductivity=0, temperature) => {
-  // Weightage factors for each parameter
-  let ph_weight = 0.25;
-  let turbidity_weight = 0.25;
-  let conductivity_weight = 0.25;
-  let temperature_weight = 0.25;
-  if (conductivity === 0) {
-    // If conductivity is not provided, then remove it from calculation
-    ph_weight = 0.33;
-    turbidity_weight = 0.33;
-    temperature_weight = 0.33;
-  }
+const calculate_wqi = (ph, turbidity, temperature) => {
+  // Weights for each parameter
+  ph_weight = 0.33;
+  turbidity_weight = 0.33;
+  temperature_weight = 0.33;
 
   // Normalize parameters
   const ph_norm = ((ph - 6) / (8.5 - 6)) * 100;
