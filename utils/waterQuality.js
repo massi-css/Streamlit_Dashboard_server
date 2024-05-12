@@ -3,9 +3,9 @@
 
 const calculate_wqi = (ph, turbidity, temperature) => {
   // Weights for each parameter
-  ph_weight = 0.33;
-  turbidity_weight = 0.33;
-  temperature_weight = 0.33;
+  const ph_weight = 0.33;
+  const turbidity_weight = 0.33;
+  const temperature_weight = 0.33;
 
   // Normalize parameters
   const ph_norm = ((ph - 6) / (8.5 - 6)) * 100;
