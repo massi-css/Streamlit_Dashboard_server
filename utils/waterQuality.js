@@ -8,9 +8,9 @@ const calculate_wqi = (ph, turbidity, temperature) => {
   const temperature_weight = 0.33;
 
   // Normalize parameters
-  const ph_norm = ((ph - 6) / (8.5 - 6)) * 100;
-  const turbidity_norm = (turbidity / 5) * 100; // maximum acceptable turbidity is 5 NTU
-  const temperature_norm = ((temperature - 0) / (30 - 0)) * 100; // temperature range from 0 to 30 Celsius
+  let ph_norm = ((ph - 6) / (8.5 - 6)) * 100;
+  let turbidity_norm = (turbidity / 5) * 100; // maximum acceptable turbidity is 5 NTU
+  let temperature_norm = ((temperature - 0) / (30 - 0)) * 100; // temperature range from 0 to 30 Celsius
 
     // Cap normalized parameters at 100
     ph_norm = Math.min(ph_norm, 100);
