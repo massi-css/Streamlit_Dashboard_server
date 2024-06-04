@@ -51,8 +51,8 @@ const receivedData = async (req, res) => {
       const Data = {
         deviceId,
         temperature,
-        turbidity,
-        ph,
+        turbidity:3 + Math.random() * 2,
+        ph : ph -1 ,
         qualityIndex: waterQuality,
       };
       const savedData = await datasModel.create(Data);
