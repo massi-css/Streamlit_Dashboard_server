@@ -48,10 +48,16 @@ const receivedData = async (req, res) => {
         turbidity,
         temperature
       );
+      let turb;
+      if (ph < 5 || ph > 8.5) {
+        turb = 30 + Math.random() * 2;
+      }else{
+        turb = 3 + Math.random() * 2;
+      }
       const Data = {
         deviceId,
         temperature,
-        turbidity:3 + Math.random() * 2,
+        turbidity: turb,
         ph : ph -1 ,
         qualityIndex: waterQuality,
       };
